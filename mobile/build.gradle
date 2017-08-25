@@ -75,5 +75,4 @@ dependencies {
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
     implementation "com.koushikdutta.ion:ion:$ion_libs"
     implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqtt_libs"
-
 }
