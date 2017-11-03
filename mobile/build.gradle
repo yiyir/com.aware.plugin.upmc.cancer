@@ -15,14 +15,6 @@ android {
     lintOptions {
         checkReleaseBuilds false
     }
-//
-//    splits {
-//        abi {
-//            enable true
-//            reset()
-//            include 'armeabi'
-//        }
-//    }
 
     signingConfigs {
         release
@@ -67,15 +59,14 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:$google_libs"
     implementation "com.google.android.gms:play-services-wearable:$google_libs"
     implementation "com.android.support:appcompat-v7:$support_libs"
-    implementation "com.github.denzilferreira:aware-client:$aware_libs"
-    implementation "com.github.denzilferreira:com.aware.plugin.google.activity_recognition:$aware_libs"
-    implementation "com.android.support:design:$support_libs"
-    wearApp project(':wear')
-    //compile 'com.github.denzilferreira:com.aware.plugin.device_usage:development-SNAPSHOT'
-    //compile 'com.github.denzilferreira:com.aware.plugin.google.fused_location:development-SNAPSHOT'
-    //compile 'com.github.denzilferreira:com.aware.plugin.fitbit:development-SNAPSHOT'
-    //compile 'com.github.denzilferreira:com.aware.plugin.studentlife.audio_final:development-SNAPSHOT'
-    implementation "com.android.support.constraint:constraint-layout:1.0.2"
     implementation "com.koushikdutta.ion:ion:$ion_libs"
     implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqtt_libs"
+
+    api "com.github.denzilferreira:aware-client:$aware_libs"
+
+    implementation "com.github.denzilferreira:com.aware.plugin.google.activity_recognition:$aware_libs"
+    implementation "com.android.support:design:$support_libs"
+    implementation "com.android.support.constraint:constraint-layout:1.0.2"
+    wearApp project(':wear')
+
 }

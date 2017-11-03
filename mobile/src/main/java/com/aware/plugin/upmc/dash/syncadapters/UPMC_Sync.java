@@ -32,7 +32,6 @@ public class UPMC_Sync extends Service {
                 );
             }
         }
-
     }
 
     @Nullable

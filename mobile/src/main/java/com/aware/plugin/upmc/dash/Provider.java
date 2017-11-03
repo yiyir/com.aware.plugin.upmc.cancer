@@ -48,8 +48,6 @@ public class Provider extends ContentProvider {
             "upmc_dash_stepcount"
     };
 
-
-
     private static final int ANSWERS = 1;
     private static final int ANSWERS_ID = 2;
     private static final int MOTIVATIONS = 3;
@@ -82,17 +80,13 @@ public class Provider extends ContentProvider {
         static final String MOST_STRESS_LABEL = "most_stress_label";
         static final String SCORE_PAIN = "score_pain";
         static final String SCORE_FATIGUE = "score_fatigue";
-        //        static final String SCORE_DISCONNECTED = "score_disconnected";
         static final String SCORE_SLEEP_DISTURBANCE = "score_sleep_dist";
         static final String SCORE_CONCENTRATING = "score_concentrating";
         static final String SCORE_SAD = "score_sad";
         static final String SCORE_ANXIOUS = "score_anxious";
-        //        static final String SCORE_ENJOY = "score_enjoy";
-//        static final String SCORE_IRRITABLE = "score_irritable";
         static final String SCORE_SHORT_BREATH = "score_short_breath";
         static final String SCORE_NUMBNESS = "score_numbness";
         static final String SCORE_NAUSEA = "score_nausea";
-        //        static final String SCORE_APPETITE = "score_appetite";
         static final String SCORE_DIARRHEA = "score_diarrhea";
         static final String SCORE_OTHER = "score_other";
         static final String OTHER_LABEL = "other_label";
@@ -135,17 +129,13 @@ public class Provider extends ContentProvider {
                     Symptom_Data.MOST_STRESS_LABEL + " text default ''," +
                     Symptom_Data.SCORE_PAIN + " text default ''," +
                     Symptom_Data.SCORE_FATIGUE + " text default ''," +
-//                    Symptom_Data.SCORE_DISCONNECTED + " text default ''," +
                     Symptom_Data.SCORE_SLEEP_DISTURBANCE + " text default ''," +
                     Symptom_Data.SCORE_CONCENTRATING + " text default ''," +
                     Symptom_Data.SCORE_SAD + " text default ''," +
                     Symptom_Data.SCORE_ANXIOUS + " text default ''," +
-//                    Symptom_Data.SCORE_ENJOY + " text default ''," +
-//                    Symptom_Data.SCORE_IRRITABLE + " text default ''," +
                     Symptom_Data.SCORE_SHORT_BREATH + " text default ''," +
                     Symptom_Data.SCORE_NUMBNESS + " text default ''," +
                     Symptom_Data.SCORE_NAUSEA + " text default ''," +
-//                    Symptom_Data.SCORE_APPETITE + " text default ''," +
                     Symptom_Data.SCORE_DIARRHEA + " text default ''," +
                     Symptom_Data.SCORE_OTHER + " text default ''," +
                     Symptom_Data.OTHER_LABEL + " text default ''",
@@ -202,17 +192,13 @@ public class Provider extends ContentProvider {
         surveyMap.put(Symptom_Data.SCORE_HAPPY, Symptom_Data.SCORE_HAPPY);
         surveyMap.put(Symptom_Data.SCORE_PAIN, Symptom_Data.SCORE_PAIN);
         surveyMap.put(Symptom_Data.SCORE_FATIGUE, Symptom_Data.SCORE_FATIGUE);
-//        surveyMap.put(Symptom_Data.SCORE_DISCONNECTED, Symptom_Data.SCORE_DISCONNECTED);
         surveyMap.put(Symptom_Data.SCORE_SLEEP_DISTURBANCE, Symptom_Data.SCORE_SLEEP_DISTURBANCE);
         surveyMap.put(Symptom_Data.SCORE_CONCENTRATING, Symptom_Data.SCORE_CONCENTRATING);
         surveyMap.put(Symptom_Data.SCORE_SAD, Symptom_Data.SCORE_SAD);
         surveyMap.put(Symptom_Data.SCORE_ANXIOUS, Symptom_Data.SCORE_ANXIOUS);
-//        surveyMap.put(Symptom_Data.SCORE_ENJOY, Symptom_Data.SCORE_ENJOY);
-//        surveyMap.put(Symptom_Data.SCORE_IRRITABLE, Symptom_Data.SCORE_IRRITABLE);
         surveyMap.put(Symptom_Data.SCORE_SHORT_BREATH, Symptom_Data.SCORE_SHORT_BREATH);
         surveyMap.put(Symptom_Data.SCORE_NUMBNESS, Symptom_Data.SCORE_NUMBNESS);
         surveyMap.put(Symptom_Data.SCORE_NAUSEA, Symptom_Data.SCORE_NAUSEA);
-//        surveyMap.put(Symptom_Data.SCORE_APPETITE, Symptom_Data.SCORE_APPETITE);
         surveyMap.put(Symptom_Data.SCORE_DIARRHEA, Symptom_Data.SCORE_DIARRHEA);
         surveyMap.put(Symptom_Data.SCORE_OTHER, Symptom_Data.SCORE_OTHER);
         surveyMap.put(Symptom_Data.OTHER_LABEL, Symptom_Data.OTHER_LABEL);
@@ -278,8 +264,10 @@ public class Provider extends ContentProvider {
                 return Motivational_Data.CONTENT_TYPE;
             case MOTIVATIONS_ID:
                 return Motivational_Data.CONTENT_ITEM_TYPE;
+            case STEPCOUNT:
+                return Stepcount_Data.CONTENT_TYPE;
             case STEPCOUNT_ID:
-                return Motivational_Data.CONTENT_ITEM_TYPE;
+                return Stepcount_Data.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }

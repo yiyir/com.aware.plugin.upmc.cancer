@@ -1,7 +1,6 @@
 package com.aware.plugin.upmc.dash;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -15,7 +14,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.PermissionChecker;
@@ -271,11 +269,11 @@ public class UPMC extends AppCompatActivity {
                                             //UPMC Dash
                                             Aware.joinStudy(getApplicationContext(), "https://r2d2.hcii.cs.cmu.edu/aware/dashboard/index.php/webservice/index/81/Rhi4Q8PqLASf");
 
-                                            Aware.startPlugin(getApplicationContext(), "com.aware.plugin.upmc.dash");
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_SIGNIFICANT_MOTION, true);
 
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, true);
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.FREQUENCY_ACCELEROMETER, 200000);
+
                                             Aware.setSetting(getApplicationContext(), com.aware.plugin.google.activity_recognition.Settings.STATUS_PLUGIN_GOOGLE_ACTIVITY_RECOGNITION, true);
                                             Aware.setSetting(getApplicationContext(), com.aware.plugin.google.activity_recognition.Settings.FREQUENCY_PLUGIN_GOOGLE_ACTIVITY_RECOGNITION, 300);
                                             Aware.startPlugin(getApplicationContext(), "com.aware.plugin.google.activity_recognition");
@@ -289,14 +287,18 @@ public class UPMC extends AppCompatActivity {
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_SCREEN, true);
 
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.WEBSERVICE_WIFI_ONLY, true);
+                                            Aware.setSetting(getApplicationContext(), Aware_Preferences.WEBSERVICE_FALLBACK_NETWORK, 6);
+                                            Aware.setSetting(getApplicationContext(), Aware_Preferences.FREQUENCY_WEBSERVICE, 30);
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.FREQUENCY_CLEAN_OLD_DATA, 1);
                                             Aware.setSetting(getApplicationContext(), Aware_Preferences.WEBSERVICE_SILENT, true);
 
-
-                                            //Aware.startPlugin(getApplicationContext(), "com.aware.plugin.fitbit");
+                                            Aware.startPlugin(getApplicationContext(), "com.aware.plugin.upmc.dash"); //apply settings and restart itself
 
                                             //Ask accessibility to be activated
                                             Applications.isAccessibilityServiceActive(getApplicationContext());
+
+                                            //Ask Doze to be disabled
+                                            Aware.isBatteryOptimizationIgnored(getApplicationContext(), getPackageName());
                                         }
                                         runOnUiThread(new Runnable() {
                                             @Override
