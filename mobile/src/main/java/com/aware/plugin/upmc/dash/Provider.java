@@ -148,8 +148,8 @@ public class Provider extends ContentProvider {
             Stepcount_Data._ID + " integer primary key autoincrement," +
                     Stepcount_Data.TIMESTAMP + " real default 0," +
                     Stepcount_Data.DEVICE_ID + " text default '',"+
-                    Stepcount_Data.STEP_COUNT + " integer default null," +
-                    Stepcount_Data.ALARM_TYPE + " integer default null"
+                    Stepcount_Data.STEP_COUNT + " integer default -1," +
+                    Stepcount_Data.ALARM_TYPE + " integer default -1"
     };
 
     private static UriMatcher sUriMatcher = null;
@@ -212,6 +212,7 @@ public class Provider extends ContentProvider {
         stepcountMap = new HashMap<>();
         stepcountMap.put(Stepcount_Data._ID, Stepcount_Data._ID);
         stepcountMap.put(Stepcount_Data.DEVICE_ID, Stepcount_Data.DEVICE_ID);
+        stepcountMap.put(Stepcount_Data.TIMESTAMP, Stepcount_Data.TIMESTAMP);
         stepcountMap.put(Stepcount_Data.STEP_COUNT, Stepcount_Data.STEP_COUNT);
         stepcountMap.put(Stepcount_Data.ALARM_TYPE, Stepcount_Data.ALARM_TYPE);
 
