@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 
 import com.aware.Aware;
@@ -58,8 +57,6 @@ public class Plugin extends Aware_Plugin {
         if (PERMISSIONS_OK) {
 
             Aware.setSetting(this, Settings.STATUS_PLUGIN_UPMC_CANCER, true);
-            Aware.setSetting(getApplicationContext(), Aware_Preferences.WEBSERVICE_WIFI_ONLY, true);
-            Aware.setSetting(getApplicationContext(), Aware_Preferences.WEBSERVICE_FALLBACK_NETWORK, 6);
 
             if (intent != null && intent.getExtras() != null && intent.getBooleanExtra("schedule", false)) {
                 int morning_hour = Integer.parseInt(Aware.getSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_HOUR));
@@ -79,7 +76,7 @@ public class Plugin extends Aware_Plugin {
                 }
             }
 
-            if (Aware.getSetting(this, Aware_Preferences.FREQUENCY_WEBSERVICE).length() >= 0 && !Aware.isSyncEnabled(this, Provider.getAuthority(this)) && Aware.isStudy(this) && getApplicationContext().getPackageName().equalsIgnoreCase("com.aware.phone") || getApplicationContext().getResources().getBoolean(R.bool.standalone)) {
+            if (!Aware.isSyncEnabled(this, Provider.getAuthority(this)) && Aware.isStudy(this)) {
                 ContentResolver.setIsSyncable(Aware.getAWAREAccount(this), Provider.getAuthority(this), 1);
                 ContentResolver.setSyncAutomatically(Aware.getAWAREAccount(this), Provider.getAuthority(this), true);
                 ContentResolver.addPeriodicSync(
@@ -89,8 +86,7 @@ public class Plugin extends Aware_Plugin {
                         Long.parseLong(Aware.getSetting(this, Aware_Preferences.FREQUENCY_WEBSERVICE)) * 60
                 );
             }
-            Aware.setSetting(getApplicationContext(), Aware_Preferences.DEBUG_FLAG, true);
-            Aware.isBatteryOptimizationIgnored(getApplicationContext(), getPackageName());
+
             Aware.startAWARE(this);
         }
 
@@ -208,7 +204,7 @@ public class Plugin extends Aware_Plugin {
     public void onDestroy() {
         super.onDestroy();
         //Turn off the sync-adapter if part of a study
-        if (Aware.isStudy(this) && (getApplicationContext().getPackageName().equalsIgnoreCase("com.aware.phone") || getApplicationContext().getResources().getBoolean(R.bool.standalone))) {
+        if (Aware.isStudy(this) && Aware.isSyncEnabled(this, Provider.getAuthority(this))) {
             ContentResolver.setSyncAutomatically(Aware.getAWAREAccount(this), Provider.getAuthority(this), false);
             ContentResolver.removePeriodicSync(
                     Aware.getAWAREAccount(this),

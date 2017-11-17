@@ -185,11 +185,11 @@ public class Provider extends ContentProvider {
         surveyMap.put(Symptom_Data.TO_BED, Symptom_Data.TO_BED);
         surveyMap.put(Symptom_Data.FROM_BED, Symptom_Data.FROM_BED);
         surveyMap.put(Symptom_Data.SCORE_SLEEP, Symptom_Data.SCORE_SLEEP);
-        surveyMap.put(Symptom_Data.SCORE_MOST_STRESS, Symptom_Data.SCORE_MOST_STRESS);
-        surveyMap.put(Symptom_Data.MOST_STRESS_LABEL, Symptom_Data.MOST_STRESS_LABEL);
         surveyMap.put(Symptom_Data.SCORE_STRESS, Symptom_Data.SCORE_STRESS);
         surveyMap.put(Symptom_Data.SCORE_ANGRY, Symptom_Data.SCORE_ANGRY);
         surveyMap.put(Symptom_Data.SCORE_HAPPY, Symptom_Data.SCORE_HAPPY);
+        surveyMap.put(Symptom_Data.SCORE_MOST_STRESS, Symptom_Data.SCORE_MOST_STRESS);
+        surveyMap.put(Symptom_Data.MOST_STRESS_LABEL, Symptom_Data.MOST_STRESS_LABEL);
         surveyMap.put(Symptom_Data.SCORE_PAIN, Symptom_Data.SCORE_PAIN);
         surveyMap.put(Symptom_Data.SCORE_FATIGUE, Symptom_Data.SCORE_FATIGUE);
         surveyMap.put(Symptom_Data.SCORE_SLEEP_DISTURBANCE, Symptom_Data.SCORE_SLEEP_DISTURBANCE);
