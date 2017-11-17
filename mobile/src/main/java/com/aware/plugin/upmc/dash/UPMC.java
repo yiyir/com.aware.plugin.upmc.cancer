@@ -69,7 +69,7 @@ public class UPMC extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d("DASH", "UPMC:onDestroy");
+
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mNotifBroadcastReceiver);
     }
 
@@ -77,15 +77,10 @@ public class UPMC extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent aware = new Intent(this, Aware.class);
-        startService(aware);
-
-        Log.d("DASH", "UPMC:onCreate");
         LocalBroadcastManager.getInstance(this).registerReceiver(mNotifBroadcastReceiver, new IntentFilter(Constants.NOTIFICATION_MESSAGE_INTENT_FILTER));
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
-
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
@@ -348,6 +343,10 @@ public class UPMC extends AppCompatActivity {
         }
 
         if (permissions_ok) {
+
+            Intent aware = new Intent(this, Aware.class);
+            startService(aware);
+
             Aware.setSetting(this, Aware_Preferences.DEBUG_FLAG, debug);
             //NOTE: needed for demo to participants
             Aware.setSetting(this, Aware_Preferences.STATUS_ESM, true);
