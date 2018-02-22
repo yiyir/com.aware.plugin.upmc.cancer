@@ -1,10 +1,14 @@
 package com.aware.plugin.upmc.dash;
 
+import android.Manifest;
+import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SyncRequest;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.aware.Aware;
@@ -12,6 +16,7 @@ import com.aware.Aware_Preferences;
 import com.aware.utils.Aware_Plugin;
 import com.aware.utils.Scheduler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.Calendar;
@@ -26,6 +31,27 @@ public class Plugin extends Aware_Plugin {
 
         AUTHORITY = Provider.getAuthority(this);
         TAG = "UPMC Cancer";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            REQUIRED_PERMISSIONS.add(Manifest.permission.BODY_SENSORS);
+        }
+        REQUIRED_PERMISSIONS.add(Manifest.permission.VIBRATE);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH_ADMIN);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_CALL_LOG);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_CONTACTS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SMS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_PHONE_STATE);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_WIFI_STATE);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.RECORD_AUDIO);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.WAKE_LOCK);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        //these are needed for the sync adapter to work...
+        REQUIRED_PERMISSIONS.add(Manifest.permission.GET_ACCOUNTS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_SYNC_SETTINGS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SYNC_SETTINGS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SYNC_STATS);
     }
 
     public static class SurveyListener extends BroadcastReceiver {
@@ -46,35 +72,69 @@ public class Plugin extends Aware_Plugin {
 
             Aware.setSetting(this, Settings.STATUS_PLUGIN_UPMC_CANCER, true);
 
-            if (intent != null && intent.getExtras() != null && intent.getBooleanExtra("schedule", false)) {
+            try {
+                if (Aware.getSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_HOUR).length() == 0)
+                    Aware.setSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_HOUR, 9);
+
+                if (Aware.getSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_MINUTE).length() == 0)
+                    Aware.setSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_MINUTE, 0);
+
                 int morning_hour = Integer.parseInt(Aware.getSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_HOUR));
                 int morning_minute = Integer.parseInt(Aware.getSetting(this, Settings.PLUGIN_UPMC_CANCER_MORNING_MINUTE));
 
-                try {
-                    Scheduler.removeSchedule(getApplicationContext(), "cancer_survey_morning");
+                Scheduler.Schedule currentScheduler = Scheduler.getSchedule(getApplicationContext(), "cancer_survey_morning");
+                if (currentScheduler == null) {
                     Scheduler.Schedule schedule = new Scheduler.Schedule("cancer_survey_morning");
                     schedule.addHour(morning_hour)
                             .addMinute(morning_minute)
                             .setActionIntentAction(Plugin.ACTION_CANCER_SURVEY)
                             .setActionType(Scheduler.ACTION_TYPE_BROADCAST);
                     Scheduler.saveSchedule(this, schedule);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    JSONArray hours = currentScheduler.getHours();
+                    JSONArray minutes = currentScheduler.getMinutes();
+                    boolean hour_changed = false;
+                    boolean minute_changed = false;
+                    for (int i = 0; i < hours.length(); i++) {
+                        if (hours.getInt(i) != morning_hour) {
+                            hour_changed = true;
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < minutes.length(); i++) {
+                        if (minutes.getInt(i) != morning_minute) {
+                            minute_changed = true;
+                            break;
+                        }
+                    }
+                    if (hour_changed || minute_changed) {
+                        Scheduler.removeSchedule(getApplicationContext(), "cancer_survey_morning");
+                        Scheduler.Schedule schedule = new Scheduler.Schedule("cancer_survey_morning");
+                        schedule.addHour(morning_hour)
+                                .addMinute(morning_minute)
+                                .setActionIntentAction(Plugin.ACTION_CANCER_SURVEY)
+                                .setActionType(Scheduler.ACTION_TYPE_BROADCAST);
+                        Scheduler.saveSchedule(this, schedule);
+                    }
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
-            if (Aware.isStudy(this) && !Aware.isSyncEnabled(this, Provider.getAuthority(this))) {
-                ContentResolver.setIsSyncable(Aware.getAWAREAccount(this), Provider.getAuthority(this), 1);
-                ContentResolver.addPeriodicSync(
-                        Aware.getAWAREAccount(this),
-                        Provider.getAuthority(this),
-                        Bundle.EMPTY,
-                        Long.parseLong(Aware.getSetting(this, Aware_Preferences.FREQUENCY_WEBSERVICE)) * 60
-                );
+            if (Aware.isStudy(this)) {
+                Account aware_account = Aware.getAWAREAccount(getApplicationContext());
+                String authority = Provider.getAuthority(getApplicationContext());
+                long frequency = Long.parseLong(Aware.getSetting(this, Aware_Preferences.FREQUENCY_WEBSERVICE)) * 60;
+
+                ContentResolver.setIsSyncable(aware_account, authority, 1);
+                ContentResolver.setSyncAutomatically(aware_account, authority, true);
+                SyncRequest request = new SyncRequest.Builder()
+                        .syncPeriodic(frequency, frequency / 3)
+                        .setSyncAdapter(aware_account, authority)
+                        .setExtras(new Bundle()).build();
+                ContentResolver.requestSync(request);
             }
 
-            Aware.isBatteryOptimizationIgnored(getApplicationContext(), getPackageName());
             Aware.startAWARE(this);
         }
 
@@ -92,19 +152,19 @@ public class Plugin extends Aware_Plugin {
         today.set(Calendar.MILLISECOND, 0);
 
         Cursor symptoms = c.getContentResolver().query(Provider.Symptom_Data.CONTENT_URI, new String[]{
-                "AVG(" +
-                        Provider.Symptom_Data.SCORE_PAIN + "+" +
-                        Provider.Symptom_Data.SCORE_FATIGUE + "+" +
-                        Provider.Symptom_Data.SCORE_SLEEP_DISTURBANCE + "+" +
-                        Provider.Symptom_Data.SCORE_CONCENTRATING + "+" +
-                        Provider.Symptom_Data.SCORE_SAD + "+" +
-                        Provider.Symptom_Data.SCORE_ANXIOUS + "+" +
-                        Provider.Symptom_Data.SCORE_SHORT_BREATH + "+" +
-                        Provider.Symptom_Data.SCORE_NUMBNESS + "+" +
-                        Provider.Symptom_Data.SCORE_NAUSEA + "+" +
-                        Provider.Symptom_Data.SCORE_DIARRHEA + "+" +
-                        Provider.Symptom_Data.SCORE_OTHER + ") as avg_symptoms"
-        }, Provider.Symptom_Data.TIMESTAMP + " >= " + today.getTimeInMillis() + " AND " +
+                        "AVG(" +
+                                Provider.Symptom_Data.SCORE_PAIN + "+" +
+                                Provider.Symptom_Data.SCORE_FATIGUE + "+" +
+                                Provider.Symptom_Data.SCORE_SLEEP_DISTURBANCE + "+" +
+                                Provider.Symptom_Data.SCORE_CONCENTRATING + "+" +
+                                Provider.Symptom_Data.SCORE_SAD + "+" +
+                                Provider.Symptom_Data.SCORE_ANXIOUS + "+" +
+                                Provider.Symptom_Data.SCORE_SHORT_BREATH + "+" +
+                                Provider.Symptom_Data.SCORE_NUMBNESS + "+" +
+                                Provider.Symptom_Data.SCORE_NAUSEA + "+" +
+                                Provider.Symptom_Data.SCORE_DIARRHEA + "+" +
+                                Provider.Symptom_Data.SCORE_OTHER + ") as avg_symptoms"
+                }, Provider.Symptom_Data.TIMESTAMP + " >= " + today.getTimeInMillis() + " AND " +
                         Provider.Symptom_Data.SCORE_PAIN + ">=0 AND " +
                         Provider.Symptom_Data.SCORE_FATIGUE + ">=0 AND " +
                         Provider.Symptom_Data.SCORE_SLEEP_DISTURBANCE + ">=0 AND " +
@@ -191,14 +251,13 @@ public class Plugin extends Aware_Plugin {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //Turn off the sync-adapter if part of a study
-        if (Aware.isStudy(this) && Aware.isSyncEnabled(this, Provider.getAuthority(this))) {
-            ContentResolver.removePeriodicSync(
-                    Aware.getAWAREAccount(this),
-                    Provider.getAuthority(this),
-                    Bundle.EMPTY
-            );
-        }
+
+        ContentResolver.removePeriodicSync(
+                Aware.getAWAREAccount(this),
+                Provider.getAuthority(this),
+                Bundle.EMPTY
+        );
+
         Aware.setSetting(this, Settings.STATUS_PLUGIN_UPMC_CANCER, false);
         Aware.stopAWARE(this);
     }
